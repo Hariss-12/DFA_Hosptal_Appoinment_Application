@@ -3,6 +3,8 @@
  */
 
 const express = require('express');
+const fs = require('node:fs');
+const path = require('node:path');
 const ENV = require('./config/env');
 const { connectDB, mongoose } = require('./config/db');
 const {
@@ -50,6 +52,18 @@ app.use('/api/auth', authRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Serve the built React application from the same Render web service when present.
+const frontendDist = path.resolve(__dirname, '..', 'frontend', 'dist');
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get('*', (req, res, next) => {
+    if (req.path === '/api' || req.path.startsWith('/api/')) {
+      return next();
+    }
+    return res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
 
 // 4. Centralized 404 & Error Handling
 app.use(notFoundHandler);
