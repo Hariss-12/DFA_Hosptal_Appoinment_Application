@@ -58,7 +58,7 @@ app.use(errorHandler);
 async function startServer(port = ENV.PORT, options = {}) {
   await connectDB(options);
   return new Promise((resolve) => {
-    const server = app.listen(port, '127.0.0.1', () => {
+    const server = app.listen(port, '0.0.0.0', () => {
       resolve(server);
     });
   });
@@ -71,7 +71,7 @@ if (require.main === module) {
       await seedDatabase({ forceReset: false });
       const addr = server.address();
       console.log(
-        `[Hospital DFA Backend] Server listening on http://127.0.0.1:${addr.port} (DB readyState=${mongoose.connection.readyState})`
+        `[Hospital DFA Backend] Server listening on 0.0.0.0:${addr.port} (DB readyState=${mongoose.connection.readyState})`
       );
     })
     .catch((err) => {
