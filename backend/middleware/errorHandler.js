@@ -64,7 +64,7 @@ function errorHandler(err, _req, res, _next) {
       success: false,
       error: {
         message: err.message || 'Request could not be processed.',
-        code: 'CLIENT_REQUEST_ERROR',
+        code: err.code || 'CLIENT_REQUEST_ERROR',
       },
     });
   }
