@@ -1,20 +1,19 @@
 /**
- * Frontend Production Build & AST Verification Script (`scripts/build.mjs`)
+ * Frontend Production Build & Source Verification Script (`scripts/build.mjs`)
  *
- * Verifies that all 14 React pages, context providers, and components exist,
- * have valid JSX/ESModule syntax, connect to real API endpoints via axiosClient,
- * and produces a bundled production build in `frontend/dist/`.
+ * Verifies required React pages, context providers, and components exist,
+ * then uses Vite to compile and bundle the production app into `frontend/dist/`.
  */
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { build } from 'vite';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const srcDir = path.join(rootDir, 'src');
-const distDir = path.join(rootDir, 'dist');
 
 const REQUIRED_FILES = [
   'api/axiosClient.js',
@@ -38,9 +37,6 @@ const REQUIRED_FILES = [
   'main.jsx',
 ];
 
-let totalBytes = 0;
-const bundledModules = [];
-
 for (const rel of REQUIRED_FILES) {
   const fullPath = path.join(srcDir, rel);
   if (!fs.existsSync(fullPath)) {
@@ -52,20 +48,11 @@ for (const rel of REQUIRED_FILES) {
     console.error(`Build Error: Module ${rel} is empty or incomplete.`);
     process.exit(1);
   }
-  totalBytes += Buffer.byteLength(code, 'utf8');
-  bundledModules.push(`/* === MODULE: ${rel} === */\n${code}`);
 }
 
-fs.mkdirSync(path.join(distDir, 'assets'), { recursive: true });
-const bundlePath = path.join(distDir, 'assets', 'app.bundle.js');
-fs.writeFileSync(bundlePath, bundledModules.join('\n\n'), 'utf8');
+await build({
+  configFile: path.join(rootDir, 'vite.config.js'),
+  root: rootDir,
+});
 
-const indexHtml = fs.readFileSync(path.join(rootDir, 'index.html'), 'utf8');
-const prodHtml = indexHtml.replace('/src/main.jsx', '/assets/app.bundle.js');
-fs.writeFileSync(path.join(distDir, 'index.html'), prodHtml, 'utf8');
-
-console.log(
-  `[Frontend Production Build] Successfully verified and bundled ${REQUIRED_FILES.length} modules (${(
-    totalBytes / 1024
-  ).toFixed(2)} KB) -> dist/index.html & dist/assets/app.bundle.js`
-);
+console.log(`[Frontend Production Build] Verified ${REQUIRED_FILES.length} modules and built dist/ with Vite.`);
