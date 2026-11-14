@@ -67,6 +67,7 @@ jobs:
       - name: Trigger Render deployment
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          RENDER_SERVICE_URL: https://dfa-hosptal-appoinment-application.onrender.com
         run: |
           if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
             echo "Add the Render deploy hook URL as the RENDER_DEPLOY_HOOK_URL repository secret."
@@ -76,3 +77,13 @@ jobs:
           curl --fail-with-body --silent --show-error \
             --request POST \
             "$RENDER_DEPLOY_HOOK_URL"
+
+          echo "Render deployment triggered for [$RENDER_SERVICE_URL]($RENDER_SERVICE_URL)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check deployed backend health
+        env:
+          RENDER_SERVICE_URL: https://dfa-hosptal-appoinment-application.onrender.com
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --retry 18 --retry-delay 10 --retry-all-errors \
+            "$RENDER_SERVICE_URL/api/health"
