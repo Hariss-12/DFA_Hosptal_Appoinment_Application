@@ -2,6 +2,10 @@
 
 A complete, full-stack, security-hardened Hospital Appointment Management System built with **React + Vite**, **Node.js + Express**, **MongoDB / Mongoose**, and a formal **Deterministic Finite Automaton (DFA) Engine**.
 
+The Render service used by this repository is `https://dfa-hosptal-appoinment-application.onrender.com`.
+Its root serves the frontend, and its API health check is available at `/api/health`.
+Render hostnames are exact: `dfa-hosptal-appointment-application.onrender.com` is a different service.
+
 ---
 
 ## 1. Formal DFA Specification
@@ -46,6 +50,10 @@ Configure `MONGODB_URI` in `backend/.env` with your MongoDB Atlas connection str
 set `USE_LOCAL_DB=false` to persist application data in Atlas. URL-encode any special
 characters in the database password. Set `USE_LOCAL_DB=true` only when intentionally
 using the local JSON store.
+
+For the deployed GitHub Pages frontend, configure the Render backend's `CORS_ORIGIN`
+environment variable to include `https://hariss-12.github.io` (the origin has no
+repository path). The backend's default CSP also permits the configured Render API host.
 
 ### Run All Automated Test Suites (DFA Unit, Auth, Integration, Security Audit, 15-Step E2E)
 ```bash

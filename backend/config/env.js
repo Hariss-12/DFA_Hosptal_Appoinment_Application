@@ -35,7 +35,15 @@ const ENV = {
   USE_LOCAL_DB: process.env.USE_LOCAL_DB === 'true',
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '4h',
-  CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  CORS_ORIGIN: [
+    ...new Set([
+      ...(process.env.CORS_ORIGIN || 'http://localhost:5173,http://127.0.0.1:5173')
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter(Boolean),
+      'https://hariss-12.github.io',
+    ]),
+  ].join(','),
   RATE_LIMIT_WINDOW_MS: Number(process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
   RATE_LIMIT_MAX_REQUESTS: Number(process.env.RATE_LIMIT_MAX_REQUESTS || 500),
   AUTH_RATE_LIMIT_MAX: Number(process.env.AUTH_RATE_LIMIT_MAX || 50),
